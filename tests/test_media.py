@@ -7,6 +7,7 @@ from unittest.mock import patch
 import pytest
 
 from app.core.media import SUPPORTED_EXTENSIONS, format_duration, format_size, probe_media, validate_media_path
+from app.core.languages import WHISPER_LANGUAGES, language_options
 from app.core.transcriber import LocalTranscriber
 
 
@@ -29,6 +30,19 @@ def test_validate_media_path_rejects_missing_file(tmp_path: Path):
 def test_format_helpers():
     assert format_duration(3661) == "01:01:01"
     assert format_size(1024) == "1.0 KB"
+
+
+def test_language_options_cover_all_faster_whisper_languages():
+    from faster_whisper.tokenizer import _LANGUAGE_CODES
+
+    options = language_options()
+    assert options[0] == ("", "Otomatik algıla")
+    assert {code for _label, code in options[1:]} == set(_LANGUAGE_CODES)
+    assert len(WHISPER_LANGUAGES) == len(_LANGUAGE_CODES)
+    assert dict(options)["Türkçe"] == "tr"
+    assert dict(options)["Almanca"] == "de"
+    assert dict(options)["Fransızca"] == "fr"
+    assert dict(options)["Kantonca"] == "yue"
 
 
 def test_ffmpeg_audio_preparation_uses_temporary_wav(tmp_path: Path):

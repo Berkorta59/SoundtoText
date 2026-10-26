@@ -10,7 +10,7 @@
   <img src="https://img.shields.io/badge/Platform-Windows%20%7C%20Linux-6478FF?style=for-the-badge" alt="Platforms" />
   <img src="https://img.shields.io/badge/AI-Faster--Whisper-8B5CF6?style=for-the-badge" alt="Faster Whisper" />
   <img src="https://img.shields.io/badge/Privacy-Local%20Processing-16A34A?style=for-the-badge" alt="Local processing" />
-  <img src="https://img.shields.io/badge/Interface-Turkish-E11D48?style=for-the-badge" alt="Turkish interface" />
+  <img src="https://img.shields.io/badge/Interface-9%20languages-E11D48?style=for-the-badge" alt="Interface in nine languages" />
 </p>
 
 <p align="center">
@@ -31,6 +31,8 @@
 
 **Gizliliğinizi koruyun. Dosyalarınızı seçin. Metninizi elde edin.**
 
+Arayüz dilini **Ayarlar → Uygulama dili** bölümünden değiştirebilirsiniz. Bu seçim konuşma tanıma dilinden bağımsızdır ve sonraki açılışlarda korunur.
+
 ### ✨ Özellikler
 
 | Özellik | Açıklama |
@@ -38,11 +40,12 @@
 | 🔒 Yerel işlem | Ses ve video dosyaları bilgisayarınızda işlenir. |
 | 🎧 Geniş format desteği | MP3, WAV, M4A, FLAC, MP4, MKV ve daha fazlası. |
 | 📂 Çoklu dosya kuyruğu | Birden fazla dosyayı sıraya alıp işleyin. |
-| 🌍 Dil seçenekleri | Otomatik dil algılama, Türkçe ve İngilizce seçimi. |
+| 🌍 Dil seçenekleri | Whisper'ın desteklediği tüm konuşma dilleri ve otomatik algılama. |
 | 🌐 İngilizceye çeviri | Konuşmaları İngilizce metne dönüştürün. |
 | 📝 Düzenlenebilir sonuçlar | Oluşturulan metni arayın, inceleyin ve düzenleyin. |
 | 📤 Çoklu dışa aktarma | TXT, SRT, VTT, JSON ve CSV formatları. |
 | 📊 İşlem takibi | İlerleme durumunu ve dosya başına hataları görüntüleyin. |
+| 🌐 Çok dilli arayüz | Türkçe, İngilizce, Almanca, Fransızca, İspanyolca, İtalyanca, Portekizce, Rusça ve Arapça arayüz. |
 | 🎨 Tema desteği | Koyu ve açık görünüm seçenekleri. |
 | ⚙️ Kalıcı ayarlar | Tercihlerinizi sonraki oturumlarda da kullanın. |
 | 🖥️ CPU ve CUDA | CPU ile çalışır; uyumlu CUDA aygıtı algılanırsa GPU seçeneği sunulur. |
@@ -193,7 +196,8 @@ Powered by [Faster-Whisper](https://github.com/SYSTRAN/faster-whisper), it perfo
 | 🔒 Local processing | Audio and video are processed on your computer. |
 | 🎧 Multiple media formats | MP3, WAV, M4A, FLAC, MP4, MKV, and more. |
 | 📂 Batch queue | Add multiple files to a processing queue. |
-| 🌍 Language options | Automatic detection, Turkish, and English. |
+| 🌍 Language options | Automatic detection and all languages supported by Whisper. |
+| 🌐 Multilingual interface | Turkish, English, German, French, Spanish, Italian, Portuguese, Russian, and Arabic. |
 | 🌐 English translation | Translate spoken content into English text. |
 | 📝 Editable results | Search, review, and edit generated transcripts. |
 | 📤 Multiple export formats | TXT, SRT, VTT, JSON, and CSV. |
@@ -201,6 +205,8 @@ Powered by [Faster-Whisper](https://github.com/SYSTRAN/faster-whisper), it perfo
 | 🎨 Themes | Choose between dark and light appearances. |
 | ⚙️ Persistent settings | Keep your preferences between sessions. |
 | 🖥️ CPU and CUDA | Runs on the CPU and offers GPU processing when a compatible CUDA device is detected. |
+
+Change the interface language in **Settings → Interface language**. This preference is independent of the speech-recognition language and is remembered between sessions.
 
 ### 🛡️ Privacy and offline operation
 
