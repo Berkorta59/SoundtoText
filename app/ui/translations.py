@@ -611,9 +611,9 @@ TRANSLATIONS["es"]["Tema"] = "Tema"
 TRANSLATIONS["it"]["Tema"] = "Tema"
 
 
-def translate(text: str, language: str = "tr", **values: object) -> str:
-    if language == "tr":
+def translate(text: str, ui_language: str = "tr", **values: object) -> str:
+    if ui_language == "tr":
         translated = text
     else:
-        translated = TRANSLATIONS.get(language, {}).get(text, TRANSLATIONS["en"].get(text, text))
+        translated = TRANSLATIONS.get(ui_language, {}).get(text, TRANSLATIONS["en"].get(text, text))
     return translated.format(**values) if values else translated

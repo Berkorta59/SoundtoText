@@ -1,6 +1,7 @@
 import pytest
-from PySide6.QtWidgets import QApplication
+from PySide6.QtWidgets import QApplication, QMessageBox
 
+from app.core.formats import TranscriptSegment
 from app.ui.main_window import MainWindow
 from app.ui.translations import LANGUAGE_NAMES, UI_LANGUAGES, translate
 
@@ -62,3 +63,35 @@ def test_interface_translations_cover_all_static_screen_labels(code):
     )
     if code != "tr":
         assert all(translate(text, code) != text for text in source_text)
+
+
+def test_translate_formats_language_placeholder():
+    assert translate("Detected language: {language}", "en", language="French") == (
+        "Detected language: French"
+    )
+
+
+def test_result_received_enables_and_saves_txt_result(qapp, tmp_path, monkeypatch):
+    window = MainWindow()
+    source_path = str(tmp_path / "meeting.wav")
+    output_dir = tmp_path / "exports"
+    output_dir.mkdir()
+    window.output_edit.setText(str(output_dir))
+    monkeypatch.setattr(QMessageBox, "information", lambda *args: QMessageBox.StandardButton.Ok)
+    try:
+        window._result_received(
+            source_path,
+            {
+                "segments": [TranscriptSegment(0, 1, "Merhaba dünya.")],
+                "language": "tr",
+                "duration": 1,
+            },
+        )
+
+        assert window.save_button.isEnabled()
+        window._save_result()
+        assert (output_dir / "meeting.txt").read_text(encoding="utf-8") == "Merhaba dünya."
+    finally:
+        window.hide()
+        window.deleteLater()
+        qapp.processEvents()

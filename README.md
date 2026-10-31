@@ -75,6 +75,7 @@ Desteklenen uzantıya sahip dosyaların ayrıca okunabilir ve ses kanalı içeri
 
 - Windows veya Linux
 - Python 3.10–3.14 — önerilen sürüm: Python 3.12
+- Linux/macOS'ta Python kurulu değilse veya `venv` desteği eksikse `install.sh`, desteklenen paket yöneticisiyle bunları otomatik kurmayı dener
 - İlk kurulum ve model indirmesi için internet bağlantısı
 - Seçilen model için yeterli disk alanı ve bellek
 
@@ -86,6 +87,10 @@ GPU zorunlu değildir. Uygulama CPU üzerinde de çalışabilir.
 2. `install.bat` dosyasını çalıştırın.
 3. Kurulum tamamlandıktan sonra `run.bat` dosyasını çalıştırın.
 4. Kullanmak istediğiniz modeli seçin ve ilk model indirmesinin tamamlanmasını bekleyin.
+
+`install.bat`, Python 3.12 veya `uv` bulunmuyorsa Windows Paket Yöneticisi
+(`winget`) üzerinden Python 3.12'yi kullanıcı hesabına otomatik kurmayı dener.
+`winget` bulunmayan eski Windows sürümlerinde Python'u manuel olarak kurmanız gerekir.
 
 #### Linux
 
