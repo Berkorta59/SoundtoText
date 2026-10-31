@@ -59,26 +59,27 @@ def probe_media(path: str | Path) -> MediaInfo:
         raise RuntimeError("Medya bilgisi için PyAV kurulu değil. requirements.txt dosyasındaki paketleri yükleyin.") from error
     try:
         with compatible_media_path(media_path) as compatible_path:
-            with av.open(str(compatible_path)) as container:
-                audio_streams = list(container.streams.audio)
-                if not audio_streams:
-                    raise ValueError("Dosyada kullanılabilir bir ses kanalı bulunamadı.")
-                duration = float(container.duration / av.time_base) if container.duration else 0.0
-                if not duration:
-                    durations = [
-                        float(stream.duration * stream.time_base)
-                        for stream in audio_streams
-                        if stream.duration is not None and stream.time_base is not None
-                    ]
-                    duration = max(durations, default=0.0)
-                if duration <= 0:
-                    raise ValueError("Medya süresi okunamadı; dosya bozuk veya biçim desteklenmiyor olabilir.")
-                return MediaInfo(
-                    path=media_path,
-                    duration=duration,
-                    size_bytes=media_path.stat().st_size,
-                    has_video=media_path.suffix.lower() in VIDEO_EXTENSIONS or bool(container.streams.video),
-                )
+            with compatible_path.open("rb") as media_file:
+                with av.open(media_file) as container:
+                    audio_streams = list(container.streams.audio)
+                    if not audio_streams:
+                        raise ValueError("Dosyada kullanılabilir bir ses kanalı bulunamadı.")
+                    duration = float(container.duration / av.time_base) if container.duration else 0.0
+                    if not duration:
+                        durations = [
+                            float(stream.duration * stream.time_base)
+                            for stream in audio_streams
+                            if stream.duration is not None and stream.time_base is not None
+                        ]
+                        duration = max(durations, default=0.0)
+                    if duration <= 0:
+                        raise ValueError("Medya süresi okunamadı; dosya bozuk veya biçim desteklenmiyor olabilir.")
+                    return MediaInfo(
+                        path=media_path,
+                        duration=duration,
+                        size_bytes=media_path.stat().st_size,
+                        has_video=media_path.suffix.lower() in VIDEO_EXTENSIONS or bool(container.streams.video),
+                    )
     except (ValueError, RuntimeError):
         raise
     except Exception as error:
