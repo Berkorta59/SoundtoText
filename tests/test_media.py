@@ -6,7 +6,14 @@ from unittest.mock import patch
 
 import pytest
 
-from app.core.media import SUPPORTED_EXTENSIONS, format_duration, format_size, probe_media, validate_media_path
+from app.core.media import (
+    SUPPORTED_EXTENSIONS,
+    compatible_media_path,
+    format_duration,
+    format_size,
+    probe_media,
+    validate_media_path,
+)
 from app.core.languages import WHISPER_LANGUAGES, language_options
 from app.core.transcriber import LocalTranscriber
 
@@ -25,6 +32,18 @@ def test_validate_media_path_rejects_unknown_extension(tmp_path: Path):
 def test_validate_media_path_rejects_missing_file(tmp_path: Path):
     with pytest.raises(FileNotFoundError):
         validate_media_path(tmp_path / "missing.mp3")
+
+
+def test_compatible_media_path_handles_unicode_paths(tmp_path: Path):
+    source = tmp_path / "çalışma-kaydı.mp3"
+    source.write_bytes(b"media")
+
+    with compatible_media_path(source) as compatible_path:
+        assert compatible_path != source
+        assert str(compatible_path).isascii()
+        assert compatible_path.read_bytes() == source.read_bytes()
+
+    assert not compatible_path.exists()
 
 
 def test_format_helpers():

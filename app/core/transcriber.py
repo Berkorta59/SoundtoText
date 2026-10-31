@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Callable
 
 from app.core.formats import TranscriptSegment
-from app.core.media import MediaInfo
+from app.core.media import MediaInfo, compatible_media_path
 
 ProgressCallback = Callable[[float, str], None]
 
@@ -102,32 +102,33 @@ class LocalTranscriber:
         )
         audio_path = Path(temporary_audio.name)
         temporary_audio.close()
-        command = [
-            imageio_ffmpeg.get_ffmpeg_exe(), "-nostdin", "-y", "-v", "error",
-            "-i", str(media.path), "-map", "0:a:0", "-vn", "-ac", "1", "-ar", "16000",
-            "-c:a", "pcm_s16le", str(audio_path),
-        ]
         try:
-            with tempfile.TemporaryFile() as error_output:
-                try:
-                    process = subprocess.Popen(
-                        command, stdout=subprocess.DEVNULL, stderr=error_output
-                    )
-                except OSError as error:
-                    audio_path.unlink(missing_ok=True)
-                    raise RuntimeError(f"FFmpeg başlatılamadı: {error}") from error
-                while process.poll() is None:
-                    if cancel.wait(0.1):
-                        process.terminate()
-                        try:
-                            process.wait(timeout=3)
-                        except subprocess.TimeoutExpired:
-                            process.kill()
-                            process.wait()
+            with compatible_media_path(media.path) as compatible_path:
+                command = [
+                    imageio_ffmpeg.get_ffmpeg_exe(), "-nostdin", "-y", "-v", "error",
+                    "-i", str(compatible_path), "-map", "0:a:0", "-vn", "-ac", "1", "-ar", "16000",
+                    "-c:a", "pcm_s16le", str(audio_path),
+                ]
+                with tempfile.TemporaryFile() as error_output:
+                    try:
+                        process = subprocess.Popen(
+                            command, stdout=subprocess.DEVNULL, stderr=error_output
+                        )
+                    except OSError as error:
                         audio_path.unlink(missing_ok=True)
-                        raise TranscriptionCancelled()
-                error_output.seek(0)
-                stderr = error_output.read().decode("utf-8", errors="replace")
+                        raise RuntimeError(f"FFmpeg başlatılamadı: {error}") from error
+                    while process.poll() is None:
+                        if cancel.wait(0.1):
+                            process.terminate()
+                            try:
+                                process.wait(timeout=3)
+                            except subprocess.TimeoutExpired:
+                                process.kill()
+                                process.wait()
+                            audio_path.unlink(missing_ok=True)
+                            raise TranscriptionCancelled()
+                    error_output.seek(0)
+                    stderr = error_output.read().decode("utf-8", errors="replace")
         except OSError:
             audio_path.unlink(missing_ok=True)
             raise

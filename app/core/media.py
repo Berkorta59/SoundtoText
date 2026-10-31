@@ -2,6 +2,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
+import shutil
+import tempfile
+from contextlib import contextmanager
+from collections.abc import Iterator
 
 
 SUPPORTED_EXTENSIONS = {
@@ -17,6 +21,25 @@ class MediaInfo:
     duration: float
     size_bytes: int
     has_video: bool
+
+
+@contextmanager
+def compatible_media_path(path: Path) -> Iterator[Path]:
+    if str(path).isascii():
+        yield path
+        return
+
+    temporary_path: Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            prefix="soundtotext-input-", suffix=path.suffix, delete=False
+        ) as temporary_file:
+            temporary_path = Path(temporary_file.name)
+        shutil.copyfile(path, temporary_path)
+        yield temporary_path
+    finally:
+        if temporary_path is not None:
+            temporary_path.unlink(missing_ok=True)
 
 
 def validate_media_path(path: str | Path) -> Path:
@@ -35,26 +58,27 @@ def probe_media(path: str | Path) -> MediaInfo:
     except ImportError as error:
         raise RuntimeError("Medya bilgisi için PyAV kurulu değil. requirements.txt dosyasındaki paketleri yükleyin.") from error
     try:
-        with av.open(str(media_path)) as container:
-            audio_streams = list(container.streams.audio)
-            if not audio_streams:
-                raise ValueError("Dosyada kullanılabilir bir ses kanalı bulunamadı.")
-            duration = float(container.duration / av.time_base) if container.duration else 0.0
-            if not duration:
-                durations = [
-                    float(stream.duration * stream.time_base)
-                    for stream in audio_streams
-                    if stream.duration is not None and stream.time_base is not None
-                ]
-                duration = max(durations, default=0.0)
-            if duration <= 0:
-                raise ValueError("Medya süresi okunamadı; dosya bozuk veya biçim desteklenmiyor olabilir.")
-            return MediaInfo(
-                path=media_path,
-                duration=duration,
-                size_bytes=media_path.stat().st_size,
-                has_video=media_path.suffix.lower() in VIDEO_EXTENSIONS or bool(container.streams.video),
-            )
+        with compatible_media_path(media_path) as compatible_path:
+            with av.open(str(compatible_path)) as container:
+                audio_streams = list(container.streams.audio)
+                if not audio_streams:
+                    raise ValueError("Dosyada kullanılabilir bir ses kanalı bulunamadı.")
+                duration = float(container.duration / av.time_base) if container.duration else 0.0
+                if not duration:
+                    durations = [
+                        float(stream.duration * stream.time_base)
+                        for stream in audio_streams
+                        if stream.duration is not None and stream.time_base is not None
+                    ]
+                    duration = max(durations, default=0.0)
+                if duration <= 0:
+                    raise ValueError("Medya süresi okunamadı; dosya bozuk veya biçim desteklenmiyor olabilir.")
+                return MediaInfo(
+                    path=media_path,
+                    duration=duration,
+                    size_bytes=media_path.stat().st_size,
+                    has_video=media_path.suffix.lower() in VIDEO_EXTENSIONS or bool(container.streams.video),
+                )
     except (ValueError, RuntimeError):
         raise
     except Exception as error:
